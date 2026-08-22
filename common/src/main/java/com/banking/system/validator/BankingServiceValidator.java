@@ -1,6 +1,6 @@
 package com.banking.system.validator;
 
-import com.banking.system.bean.Account;
+import com.banking.system.dtos.Account;
 import com.banking.system.exceptions.*;
 import com.banking.system.repo.AccountRepository;
 

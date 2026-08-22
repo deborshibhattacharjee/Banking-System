@@ -1,6 +1,6 @@
 package com.banking.system.repo;
 
-import com.banking.system.bean.Account;
+import com.banking.system.dtos.Account;
 
 import java.math.BigDecimal;
 import java.util.Optional;

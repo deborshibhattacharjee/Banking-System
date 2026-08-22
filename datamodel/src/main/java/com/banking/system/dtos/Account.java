@@ -1,4 +1,4 @@
-package com.banking.system.bean;
+package com.banking.system.dtos;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -20,6 +20,10 @@ public class Account {
 
     public BigDecimal getBalance() {
         return balance;
+    }
+
+    public void add(BigDecimal amount) {
+        this.balance = balance.add(amount);
     }
 
     public void updateBalance(BigDecimal balance) {

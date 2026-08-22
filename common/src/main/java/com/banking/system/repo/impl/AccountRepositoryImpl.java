@@ -1,6 +1,6 @@
 package com.banking.system.repo.impl;
 
-import com.banking.system.bean.Account;
+import com.banking.system.dtos.Account;
 import com.banking.system.database.InMemoryAccountDatabase;
 import com.banking.system.repo.AccountRepository;
 
