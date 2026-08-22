@@ -7,8 +7,10 @@ public enum BankingSystemError {
     ACCOUNT_NOT_FOUND("BP1004", "Account with id %s not found in system"),
     AMOUNT_MUST_BE_GREATER_THAN_ZERO("BP1005",
             "Amount entered must be greater than zero"),
-    INSUFFICIENT_FUNDS_FOR_WITHDRAWAL("BP1005",
+    INSUFFICIENT_FUNDS_FOR_WITHDRAWAL("BP1006",
             "Account %s has insufficient funds for withdrawal"),
+    INVALID_OPERATION_TRANSFER_TO_SAME_ACCOUNT("BP1007",
+            "Invalid operation, cannot transfer amount to same account")
     ;
 
     private final String errorCode;

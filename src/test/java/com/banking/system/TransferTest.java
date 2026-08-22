@@ -4,6 +4,7 @@ import com.banking.system.database.InMemoryAccountDatabase;
 import com.banking.system.exceptions.AccountNotFoundException;
 import com.banking.system.exceptions.InsufficientFundsException;
 import com.banking.system.exceptions.InvalidAmountException;
+import com.banking.system.exceptions.InvalidTransferException;
 import com.banking.system.repo.AccountRepository;
 import com.banking.system.repo.impl.AccountRepositoryImpl;
 import com.banking.system.service.BankingService;
@@ -185,5 +186,13 @@ public class TransferTest {
                 "Account 2 should receive the transfer");
         TestAssertions.assertBigDecimalEquals(new BigDecimal("300.00"), service.getBalance("account-3"),
                 "An unrelated account should remain unchanged");
+    }
+
+    private void rejectsTransferToSameAccount() {
+        BankingService service = createService();
+        service.createAccount("account-1", new BigDecimal("100.00"));
+        TestAssertions.assertThrows(InvalidTransferException.class, () ->
+                        service.transfer("account-1", "account-1", new BigDecimal("25.00")),
+                "A transfer to the same account should be rejected");
     }
 }

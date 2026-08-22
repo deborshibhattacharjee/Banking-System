@@ -3,6 +3,7 @@ package com.banking.system.service.impl;
 import com.banking.system.dtos.Account;
 import com.banking.system.exceptions.InsufficientFundsException;
 import com.banking.system.exceptions.InvalidAmountException;
+import com.banking.system.exceptions.InvalidTransferException;
 import com.banking.system.repo.AccountRepository;
 import com.banking.system.service.BankingService;
 import com.banking.system.validator.BankingServiceValidator;
@@ -10,10 +11,7 @@ import com.banking.system.validator.BankingServiceValidator;
 import java.math.BigDecimal;
 import java.util.Optional;
 
-import static com.banking.system.enums.BankingSystemError.AMOUNT_MUST_BE_GREATER_THAN_ZERO;
-import static com.banking.system.enums.BankingSystemError.INSUFFICIENT_FUNDS_FOR_WITHDRAWAL;
-import static com.banking.system.enums.TransactionType.DEPOSIT;
-import static com.banking.system.enums.TransactionType.WITHDRAW;
+import static com.banking.system.enums.BankingSystemError.*;
 
 public class BankingServiceImpl implements BankingService {
 
@@ -41,6 +39,9 @@ public class BankingServiceImpl implements BankingService {
 
     @Override
     public void transfer(String srcId, String destId, BigDecimal amount){
+        if(srcId.equals(destId)){
+            throw new InvalidTransferException(INVALID_OPERATION_TRANSFER_TO_SAME_ACCOUNT);
+        }
         if(amount!=null && amount.compareTo(BigDecimal.ZERO) > 0){
             withdraw(srcId, amount);
             deposit(destId, amount);
