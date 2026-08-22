@@ -1,13 +1,18 @@
 package com.banking.system;
 
 import com.banking.system.database.InMemoryAccountDatabase;
+import com.banking.system.database.InMemoryTransactionDatabase;
 import com.banking.system.exceptions.AccountNotFoundException;
 import com.banking.system.exceptions.InsufficientFundsException;
 import com.banking.system.exceptions.InvalidAmountException;
 import com.banking.system.repo.AccountRepository;
+import com.banking.system.repo.TransactionRepository;
 import com.banking.system.repo.impl.AccountRepositoryImpl;
+import com.banking.system.repo.impl.TransactionRepositoryImpl;
 import com.banking.system.service.BankingService;
+import com.banking.system.service.TransactionService;
 import com.banking.system.service.impl.BankingServiceImpl;
+import com.banking.system.service.impl.TransactionServiceImpl;
 import com.banking.system.validator.BankingServiceValidator;
 
 import java.math.BigDecimal;
@@ -60,9 +65,12 @@ public class WithdrawalTest {
 
     private BankingService createService() {
         InMemoryAccountDatabase database = new InMemoryAccountDatabase();
+        InMemoryTransactionDatabase transactionDatabase = new InMemoryTransactionDatabase();
         AccountRepository repository = new AccountRepositoryImpl(database);
+        TransactionRepository transactionRepository = new TransactionRepositoryImpl(transactionDatabase);
         BankingServiceValidator validator = new BankingServiceValidator(repository);
-        return new BankingServiceImpl(repository, validator);
+        TransactionService transactionService = new TransactionServiceImpl(transactionRepository);
+        return new BankingServiceImpl(repository, validator, transactionService);
     }
 
     private BankingService createServiceWithAccount(String accountId, BigDecimal initialBalance) {

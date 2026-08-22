@@ -1,14 +1,19 @@
 package com.banking.system;
 
 import com.banking.system.database.InMemoryAccountDatabase;
+import com.banking.system.database.InMemoryTransactionDatabase;
 import com.banking.system.exceptions.AccountNotFoundException;
 import com.banking.system.exceptions.DuplicateAccountException;
 import com.banking.system.exceptions.InvalidAccountIdException;
 import com.banking.system.exceptions.InvalidAmountException;
 import com.banking.system.repo.AccountRepository;
+import com.banking.system.repo.TransactionRepository;
 import com.banking.system.repo.impl.AccountRepositoryImpl;
+import com.banking.system.repo.impl.TransactionRepositoryImpl;
 import com.banking.system.service.BankingService;
+import com.banking.system.service.TransactionService;
 import com.banking.system.service.impl.BankingServiceImpl;
+import com.banking.system.service.impl.TransactionServiceImpl;
 import com.banking.system.validator.BankingServiceValidator;
 
 import java.math.BigDecimal;
@@ -63,9 +68,12 @@ public class AccountCreationTest {
 
     private BankingService createService(){
         InMemoryAccountDatabase  inMemoryAccountDatabase = new InMemoryAccountDatabase();
+        InMemoryTransactionDatabase   inMemoryTransactionDatabase = new InMemoryTransactionDatabase();
         AccountRepository accountRepository = new AccountRepositoryImpl(inMemoryAccountDatabase);
+        TransactionRepository transactionRepository = new TransactionRepositoryImpl(inMemoryTransactionDatabase);
         BankingServiceValidator bankingServiceValidator = new BankingServiceValidator(accountRepository);
-        return new BankingServiceImpl(accountRepository, bankingServiceValidator);
+        TransactionService transactionService = new TransactionServiceImpl(transactionRepository);
+        return new BankingServiceImpl(accountRepository, bankingServiceValidator, transactionService);
     }
 
     void createsAccountWithZeroInitialBalance() {

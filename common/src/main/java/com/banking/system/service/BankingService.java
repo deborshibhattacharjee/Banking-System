@@ -1,8 +1,7 @@
 package com.banking.system.service;
 
-import com.banking.system.dtos.Account;
-
 import java.math.BigDecimal;
+import java.util.List;
 
 public interface BankingService {
 
@@ -15,4 +14,6 @@ public interface BankingService {
     void deposit(String accountId, BigDecimal amount);
 
     void withdraw(String accountId, BigDecimal amount);
+
+    List<String> getTransactionHistory(String accountId);
 }

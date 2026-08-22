@@ -26,8 +26,13 @@ public class BankingServiceValidator {
                 new InvalidAmountException(ACCOUNT_BALANCE_CANNOT_BE_NULL));
     }
 
-    public void validateAccountIdExists(String accountId) {
+    public Account validateAccountIdExists(String accountId) {
         Optional<Account> account = accountRepository.fetchById(accountId);
-        account.orElseThrow(() -> new AccountNotFoundException(ACCOUNT_NOT_FOUND, accountId));
+        return account.orElseThrow(() -> new AccountNotFoundException(ACCOUNT_NOT_FOUND, accountId));
+    }
+
+    public void validateAmount(BigDecimal amount) {
+        throwIfTrue((amount==null || amount.compareTo(BigDecimal.ZERO) <= 0),
+                new InvalidAmountException(AMOUNT_MUST_BE_GREATER_THAN_ZERO));
     }
 }

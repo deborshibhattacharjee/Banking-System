@@ -1,6 +1,7 @@
 package com.banking.system;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 public class TestAssertions {
 
@@ -8,7 +9,7 @@ public class TestAssertions {
     }
 
     public static void assertEquals(Object expected, Object actual, String message) {
-        if (!expected.equals(actual)) {
+        if (!Objects.equals(expected, actual)) {
             throw new AssertionError(message + " | Expected: " + expected + ", Actual: " + actual);
         }
     }
@@ -38,5 +39,17 @@ public class TestAssertions {
         throw new AssertionError(
                 message + " | Expected exception: " + expectedException.getSimpleName()
                         + ", but no exception was thrown");
+    }
+
+    public static void assertNotNull(Object value, String message) {
+        if (value == null) {
+            throw new AssertionError(message);
+        }
+    }
+
+    public static void assertFalse(boolean condition, String message) {
+        if (condition) {
+            throw new AssertionError(message);
+        }
     }
 }

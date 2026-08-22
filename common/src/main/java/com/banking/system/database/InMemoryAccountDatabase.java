@@ -9,8 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public final class InMemoryAccountDatabase {
 
-    private final Map<String, Account> accounts =
-            new ConcurrentHashMap<>();
+    private final Map<String, Account> accounts = new ConcurrentHashMap<>();
 
     public Optional<Account> fetchById(String accountId) {
         return Optional.ofNullable(accounts.get(accountId));

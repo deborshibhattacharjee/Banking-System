@@ -1,13 +1,14 @@
 package com.banking.system.dtos;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 public class Account {
     private String id;
     private BigDecimal balance;
-    private List<Transaction> transactions;
+    private List<String> transactions = new ArrayList<>();
 
     public Account(String id, BigDecimal initialBalance) {
         this.id = Objects.requireNonNull(id);
@@ -30,7 +31,14 @@ public class Account {
         this.balance = balance.subtract(amount);
     }
 
-    public void updateBalance(BigDecimal balance) {
-        this.balance = Objects.requireNonNull(balance);
+    public void addToTransactions(String transactionId) {
+        if(transactions == null){
+            transactions = new ArrayList<>();
+        }
+        transactions.add(transactionId);
+    }
+
+    public List<String> getTransactions() {
+        return transactions;
     }
 }
