@@ -1,6 +1,7 @@
 package com.banking.system.service.impl;
 
 import com.banking.system.dtos.Account;
+import com.banking.system.exceptions.InsufficientFundsException;
 import com.banking.system.exceptions.InvalidAmountException;
 import com.banking.system.repo.AccountRepository;
 import com.banking.system.service.BankingService;
@@ -9,7 +10,8 @@ import com.banking.system.validator.BankingServiceValidator;
 import java.math.BigDecimal;
 import java.util.Optional;
 
-import static com.banking.system.enums.BankingProcessorError.DEPOSIT_AMOUNT_MUST_BE_GREATER_THAN_ZERO;
+import static com.banking.system.enums.BankingSystemError.AMOUNT_MUST_BE_GREATER_THAN_ZERO;
+import static com.banking.system.enums.BankingSystemError.INSUFFICIENT_FUNDS_FOR_WITHDRAWAL;
 
 public class BankingServiceImpl implements BankingService {
 
@@ -22,10 +24,10 @@ public class BankingServiceImpl implements BankingService {
     }
 
     @Override
-    public Account createAccount(String accountId, BigDecimal initialBalance) {
+    public void createAccount(String accountId, BigDecimal initialBalance) {
         validator.validateAccountCreation(accountId, initialBalance);
         Account account = new Account(accountId, initialBalance);
-        return accountRepository.save(account);
+        accountRepository.save(account);
     }
 
     @Override
@@ -36,14 +38,29 @@ public class BankingServiceImpl implements BankingService {
     }
 
     @Override
-    public Account deposit(String accountId, BigDecimal amount) {
+    public void deposit(String accountId, BigDecimal amount) {
         validator.validateAccountIdExists(accountId);
         if (amount!=null && amount.compareTo(BigDecimal.ZERO) > 0) {
             Optional<Account> optionalAccount = accountRepository.fetchById(accountId);
             Account account = optionalAccount.get();
             account.add(amount);
-            return account;
         }
-        throw new InvalidAmountException(DEPOSIT_AMOUNT_MUST_BE_GREATER_THAN_ZERO);
+        throw new InvalidAmountException(AMOUNT_MUST_BE_GREATER_THAN_ZERO);
+    }
+
+    @Override
+    public void withdraw(String accountId, BigDecimal amount){
+        validator.validateAccountIdExists(accountId);
+        if (amount!=null && amount.compareTo(BigDecimal.ZERO) > 0) {
+            Optional<Account> optionalAccount = accountRepository.fetchById(accountId);
+            Account account = optionalAccount.get();
+            if(account.getBalance().compareTo(amount)>=0){
+                account.subtract(amount);
+            } else{
+                throw new InsufficientFundsException(INSUFFICIENT_FUNDS_FOR_WITHDRAWAL);
+            }
+        } else {
+            throw new InvalidAmountException(AMOUNT_MUST_BE_GREATER_THAN_ZERO);
+        }
     }
 }

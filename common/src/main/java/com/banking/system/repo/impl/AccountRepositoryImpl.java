@@ -31,9 +31,7 @@ public class AccountRepositoryImpl implements AccountRepository {
     }
 
     @Override
-    public Account save(Account account) {
+    public void save(Account account) {
         database.save(account);
-        Optional<Account> accountOptional = database.fetchById(account.getId());
-        return accountOptional.orElse(null);
     }
 }

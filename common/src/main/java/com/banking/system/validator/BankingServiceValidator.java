@@ -7,7 +7,7 @@ import com.banking.system.repo.AccountRepository;
 import java.math.BigDecimal;
 import java.util.Optional;
 
-import static com.banking.system.enums.BankingProcessorError.*;
+import static com.banking.system.enums.BankingSystemError.*;
 import static com.banking.system.utils.ValidationUtils.throwIfTrue;
 
 public class BankingServiceValidator {

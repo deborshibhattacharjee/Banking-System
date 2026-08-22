@@ -1,12 +1,12 @@
 package com.banking.system.exceptions;
 
-import com.banking.system.enums.BankingProcessorError;
+import com.banking.system.enums.BankingSystemError;
 
 import static com.banking.system.Constants.COLON;
 
 public class BaseRuntimeException extends RuntimeException {
 
-    public BaseRuntimeException(BankingProcessorError error) {
+    public BaseRuntimeException(BankingSystemError error) {
         super(getMessage(error));
     }
 
@@ -14,7 +14,7 @@ public class BaseRuntimeException extends RuntimeException {
 //        super(getMessage(errors));
 //    }
 
-    private static String getMessage(BankingProcessorError error) {
+    private static String getMessage(BankingSystemError error) {
         return String.join(COLON, error.getErrorCode(), error.getOptionalDebugMessage());
     }
 

@@ -6,9 +6,11 @@ import java.math.BigDecimal;
 
 public interface BankingService {
 
-    Account createAccount(String accountId, BigDecimal initialBalance);
+    void createAccount(String accountId, BigDecimal initialBalance);
 
     BigDecimal getBalance(String accountId);
 
-    Account deposit(String accountId, BigDecimal amount);
+    void deposit(String accountId, BigDecimal amount);
+
+    void withdraw(String accountId, BigDecimal amount);
 }

@@ -1,9 +1,9 @@
 package com.banking.system.exceptions;
 
-import com.banking.system.enums.BankingProcessorError;
+import com.banking.system.enums.BankingSystemError;
 
 public class AccountNotFoundException extends BaseRuntimeException {
-    public AccountNotFoundException(BankingProcessorError error) {
+    public AccountNotFoundException(BankingSystemError error) {
         super(error);
     }
 }

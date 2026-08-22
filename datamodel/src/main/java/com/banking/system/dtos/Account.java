@@ -26,6 +26,10 @@ public class Account {
         this.balance = balance.add(amount);
     }
 
+    public void subtract(BigDecimal amount) {
+        this.balance = balance.subtract(amount);
+    }
+
     public void updateBalance(BigDecimal balance) {
         this.balance = Objects.requireNonNull(balance);
     }
