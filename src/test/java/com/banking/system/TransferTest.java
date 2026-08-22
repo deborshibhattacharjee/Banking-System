@@ -47,6 +47,8 @@ public class TransferTest {
 
         tests.runTest("keepsAccountsIndependentAfterTransfer", tests::keepsAccountsIndependentAfterTransfer);
 
+        tests.runTest("rejectsTransferToSameAccount", tests::rejectsTransferToSameAccount);
+
         System.out.println();
         System.out.println("All transfer tests passed.");
     }
