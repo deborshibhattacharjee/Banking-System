@@ -73,4 +73,18 @@ public final class Transaction {
         }
         return amount;
     }
+
+    @Override
+    public String toString() {
+        return "Transaction{" +
+                "transactionId='" + transactionId + '\'' +
+                ", accountId='" + accountId + '\'' +
+                ", type='" + type + '\'' +
+                ", direction='" + direction + '\'' +
+                ", amount=" + amount +
+                ", balanceAfter=" + balanceAfter +
+                ", relatedAccountId='" + relatedAccountId + '\'' +
+                ", timestamp=" + timestamp +
+                '}';
+    }
 }
