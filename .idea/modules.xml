@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/Banking System.iml" filepath="$PROJECT_DIR$/Banking System.iml" />
+      <module fileurl="file://$PROJECT_DIR$/common/common.iml" filepath="$PROJECT_DIR$/common/common.iml" />
+      <module fileurl="file://$PROJECT_DIR$/datamodel/datamodel.iml" filepath="$PROJECT_DIR$/datamodel/datamodel.iml" />
+    </modules>
+  </component>
+</project>
