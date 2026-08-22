@@ -12,6 +12,8 @@ import java.util.Optional;
 
 import static com.banking.system.enums.BankingSystemError.AMOUNT_MUST_BE_GREATER_THAN_ZERO;
 import static com.banking.system.enums.BankingSystemError.INSUFFICIENT_FUNDS_FOR_WITHDRAWAL;
+import static com.banking.system.enums.TransactionType.DEPOSIT;
+import static com.banking.system.enums.TransactionType.WITHDRAW;
 
 public class BankingServiceImpl implements BankingService {
 
@@ -38,14 +40,25 @@ public class BankingServiceImpl implements BankingService {
     }
 
     @Override
+    public void transfer(String srcId, String destId, BigDecimal amount){
+        if(amount!=null && amount.compareTo(BigDecimal.ZERO) > 0){
+            withdraw(srcId, amount);
+            deposit(destId, amount);
+        } else {
+            throw new InvalidAmountException(AMOUNT_MUST_BE_GREATER_THAN_ZERO);
+        }
+    }
+
+    @Override
     public void deposit(String accountId, BigDecimal amount) {
         validator.validateAccountIdExists(accountId);
         if (amount!=null && amount.compareTo(BigDecimal.ZERO) > 0) {
             Optional<Account> optionalAccount = accountRepository.fetchById(accountId);
             Account account = optionalAccount.get();
             account.add(amount);
+        } else {
+            throw new InvalidAmountException(AMOUNT_MUST_BE_GREATER_THAN_ZERO);
         }
-        throw new InvalidAmountException(AMOUNT_MUST_BE_GREATER_THAN_ZERO);
     }
 
     @Override
@@ -57,7 +70,7 @@ public class BankingServiceImpl implements BankingService {
             if(account.getBalance().compareTo(amount)>=0){
                 account.subtract(amount);
             } else{
-                throw new InsufficientFundsException(INSUFFICIENT_FUNDS_FOR_WITHDRAWAL);
+                throw new InsufficientFundsException(INSUFFICIENT_FUNDS_FOR_WITHDRAWAL, accountId);
             }
         } else {
             throw new InvalidAmountException(AMOUNT_MUST_BE_GREATER_THAN_ZERO);

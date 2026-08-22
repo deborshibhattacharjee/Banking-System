@@ -10,6 +10,8 @@ public interface BankingService {
 
     BigDecimal getBalance(String accountId);
 
+    void transfer(String srcId, String destId, BigDecimal amount);
+
     void deposit(String accountId, BigDecimal amount);
 
     void withdraw(String accountId, BigDecimal amount);

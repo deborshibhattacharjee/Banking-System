@@ -28,6 +28,6 @@ public class BankingServiceValidator {
 
     public void validateAccountIdExists(String accountId) {
         Optional<Account> account = accountRepository.fetchById(accountId);
-        account.orElseThrow(() -> new AccountNotFoundException(ACCOUNT_NOT_FOUND));
+        account.orElseThrow(() -> new AccountNotFoundException(ACCOUNT_NOT_FOUND, accountId));
     }
 }
