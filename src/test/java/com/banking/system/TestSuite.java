@@ -10,7 +10,8 @@ public final class TestSuite {
                 DepositTest.run(),
                 WithdrawalTest.run(),
                 TransferTest.run(),
-                TransactionHistoryTest.run());
+                TransactionHistoryTest.run(),
+                ConcurrencyTest.run());
 
         int passed = results.stream().mapToInt(SuiteResult::getPassed).sum();
         int total = results.stream().mapToInt(SuiteResult::getTotal).sum();

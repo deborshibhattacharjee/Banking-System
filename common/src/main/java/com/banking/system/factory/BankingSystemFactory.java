@@ -1,5 +1,6 @@
 package com.banking.system.factory;
 
+import com.banking.system.concurrent.AccountLockManager;
 import com.banking.system.database.InMemoryAccountDatabase;
 import com.banking.system.database.InMemoryTransactionDatabase;
 import com.banking.system.repo.AccountRepository;
@@ -22,6 +23,6 @@ public final class BankingSystemFactory {
         TransactionRepository transactionRepository = new TransactionRepositoryImpl(new InMemoryTransactionDatabase());
         BankingServiceValidator validator = new BankingServiceValidator(accountRepository);
         TransactionService transactionService = new TransactionServiceImpl(transactionRepository);
-        return new BankingServiceImpl(accountRepository, validator, transactionService);
+        return new BankingServiceImpl(accountRepository, validator, transactionService, new AccountLockManager());
     }
 }

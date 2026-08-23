@@ -10,7 +10,8 @@ public enum BankingSystemError {
     INSUFFICIENT_FUNDS_FOR_WITHDRAWAL("BP1006",
             "Account %s has insufficient funds for withdrawal"),
     INVALID_OPERATION_TRANSFER_TO_SAME_ACCOUNT("BP1007",
-            "Invalid operation, cannot transfer amount to same account");
+            "Invalid operation, cannot transfer amount to same account"),
+    ACCOUNT_BALANCE_CANNOT_BE_NEGATIVE("BP1008", "Account balance cannot be negative");
 
     private final String errorCode;
     private final String optionalDebugMessage;

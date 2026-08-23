@@ -2,6 +2,7 @@ package com.banking.system;
 
 import com.banking.system.exceptions.AccountNotFoundException;
 import com.banking.system.exceptions.InsufficientFundsException;
+import com.banking.system.exceptions.InvalidAccountIdException;
 import com.banking.system.exceptions.InvalidAmountException;
 import com.banking.system.exceptions.InvalidTransferException;
 import com.banking.system.service.BankingService;
@@ -43,6 +44,10 @@ public class TransferTest {
         runner.test("keepsAccountsIndependentAfterTransfer", tests::keepsAccountsIndependentAfterTransfer);
 
         runner.test("rejectsTransferToSameAccount", tests::rejectsTransferToSameAccount);
+
+        runner.test("rejectsNullSourceAccountId", tests::rejectsNullSourceAccountId);
+
+        runner.test("rejectsBlankDestinationAccountId", tests::rejectsBlankDestinationAccountId);
 
         return runner.result();
     }
@@ -179,5 +184,17 @@ public class TransferTest {
                 "A transfer to the same account should be rejected");
     }
 
+    private void rejectsNullSourceAccountId() {
+        BankingService service = createServiceWithTwoAccounts();
+        TestAssertions.assertThrows(InvalidAccountIdException.class, () ->
+                        service.transfer(null, "account-2", new BigDecimal("10.00")),
+                "A null source account id should be rejected as an invalid id, not surface a null pointer");
+    }
 
+    private void rejectsBlankDestinationAccountId() {
+        BankingService service = createServiceWithTwoAccounts();
+        TestAssertions.assertThrows(InvalidAccountIdException.class, () ->
+                        service.transfer("account-1", "   ", new BigDecimal("10.00")),
+                "A blank destination account id should be rejected as an invalid id");
+    }
 }

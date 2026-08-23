@@ -43,6 +43,8 @@ public class AccountCreationTest {
 
         runner.test("acceptsSmallPositiveInitialBalance", tests::acceptsSmallPositiveInitialBalance);
 
+        runner.test("negativeInitialBalanceReportsABalanceError", tests::negativeInitialBalanceReportsABalanceError);
+
         return runner.result();
     }
 
@@ -147,4 +149,14 @@ public class AccountCreationTest {
         );
     }
 
+    private void negativeInitialBalanceReportsABalanceError() {
+        BankingService service = createService();
+        try {
+            service.createAccount("account-1", new BigDecimal("-5.00"));
+            throw new AssertionError("A negative initial balance should be rejected");
+        } catch (InvalidAmountException exception) {
+            TestAssertions.assertTrue(exception.getMessage().contains("BP1008"),
+                    "A negative balance should report the negative-balance code, not the null-balance code");
+        }
+    }
 }

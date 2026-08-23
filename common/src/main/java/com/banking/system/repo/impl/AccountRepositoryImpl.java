@@ -1,10 +1,9 @@
 package com.banking.system.repo.impl;
 
-import com.banking.system.dtos.Account;
 import com.banking.system.database.InMemoryAccountDatabase;
+import com.banking.system.dtos.Account;
 import com.banking.system.repo.AccountRepository;
 
-import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -21,17 +20,8 @@ public class AccountRepositoryImpl implements AccountRepository {
         return database.fetchById(accountId);
     }
 
-    public Optional<BigDecimal> getBalance(String accountId) {
-        return database.getBalance(accountId);
-    }
-
     @Override
-    public boolean existsById(String accountId) {
-        return database.contains(accountId);
-    }
-
-    @Override
-    public void save(Account account) {
-        database.save(account);
+    public boolean saveIfAbsent(Account account) {
+        return database.saveIfAbsent(account);
     }
 }

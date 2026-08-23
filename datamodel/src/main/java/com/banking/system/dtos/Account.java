@@ -8,7 +8,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class Account {
 
     private final String id;
-    private BigDecimal balance;
+    private volatile BigDecimal balance;
     private final List<String> transactions = new CopyOnWriteArrayList<>();
 
     public Account(String id, BigDecimal initialBalance) {
@@ -22,6 +22,10 @@ public class Account {
 
     public BigDecimal getBalance() {
         return balance;
+    }
+
+    public boolean hasAtLeast(BigDecimal amount) {
+        return balance.compareTo(amount) >= 0;
     }
 
     public void add(BigDecimal amount) {
