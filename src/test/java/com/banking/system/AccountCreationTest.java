@@ -1,20 +1,10 @@
 package com.banking.system;
 
-import com.banking.system.database.InMemoryAccountDatabase;
-import com.banking.system.database.InMemoryTransactionDatabase;
 import com.banking.system.exceptions.AccountNotFoundException;
 import com.banking.system.exceptions.DuplicateAccountException;
 import com.banking.system.exceptions.InvalidAccountIdException;
 import com.banking.system.exceptions.InvalidAmountException;
-import com.banking.system.repo.AccountRepository;
-import com.banking.system.repo.TransactionRepository;
-import com.banking.system.repo.impl.AccountRepositoryImpl;
-import com.banking.system.repo.impl.TransactionRepositoryImpl;
 import com.banking.system.service.BankingService;
-import com.banking.system.service.TransactionService;
-import com.banking.system.service.impl.BankingServiceImpl;
-import com.banking.system.service.impl.TransactionServiceImpl;
-import com.banking.system.validator.BankingServiceValidator;
 
 import java.math.BigDecimal;
 
@@ -22,58 +12,42 @@ import java.math.BigDecimal;
 public class AccountCreationTest {
 
     public static void main(String[] args) {
+        TestRunner.exit(run());
+    }
+
+    public static SuiteResult run() {
         AccountCreationTest tests = new AccountCreationTest();
+        TestRunner runner = new TestRunner("Account creation");
 
-        tests.runTest("createsAccountWithZeroInitialBalance", tests::createsAccountWithZeroInitialBalance);
+        runner.test("createsAccountWithZeroInitialBalance", tests::createsAccountWithZeroInitialBalance);
 
-        tests.runTest("createsAccountWithPositiveInitialBalance", tests::createsAccountWithPositiveInitialBalance);
+        runner.test("createsAccountWithPositiveInitialBalance", tests::createsAccountWithPositiveInitialBalance);
 
-        tests.runTest("rejectsDuplicateAccountId", tests::rejectsDuplicateAccountId);
+        runner.test("rejectsDuplicateAccountId", tests::rejectsDuplicateAccountId);
 
-        tests.runTest("rejectsNullAccountId", tests::rejectsNullAccountId);
+        runner.test("rejectsNullAccountId", tests::rejectsNullAccountId);
 
-        tests.runTest("rejectsEmptyAccountId", tests::rejectsEmptyAccountId);
+        runner.test("rejectsEmptyAccountId", tests::rejectsEmptyAccountId);
 
-        tests.runTest("rejectsBlankAccountId", tests::rejectsBlankAccountId);
+        runner.test("rejectsBlankAccountId", tests::rejectsBlankAccountId);
 
-        tests.runTest("rejectsNullInitialBalance", tests::rejectsNullInitialBalance);
+        runner.test("rejectsNullInitialBalance", tests::rejectsNullInitialBalance);
 
-        tests.runTest("rejectsNegativeInitialBalance", tests::rejectsNegativeInitialBalance);
+        runner.test("rejectsNegativeInitialBalance", tests::rejectsNegativeInitialBalance);
 
-        tests.runTest("rejectsBalanceQueryForUnknownAccount", tests::rejectsBalanceQueryForUnknownAccount);
+        runner.test("rejectsBalanceQueryForUnknownAccount", tests::rejectsBalanceQueryForUnknownAccount);
 
-        tests.runTest("keepsMultipleAccountBalancesIndependent", tests::keepsMultipleAccountBalancesIndependent);
+        runner.test("keepsMultipleAccountBalancesIndependent", tests::keepsMultipleAccountBalancesIndependent);
 
-        tests.runTest("invalidAccountCreationDoesNotCreateAccount", tests::invalidAccountCreationDoesNotCreateAccount);
+        runner.test("invalidAccountCreationDoesNotCreateAccount", tests::invalidAccountCreationDoesNotCreateAccount);
 
-        tests.runTest("acceptsSmallPositiveInitialBalance", tests::acceptsSmallPositiveInitialBalance);
+        runner.test("acceptsSmallPositiveInitialBalance", tests::acceptsSmallPositiveInitialBalance);
 
-        System.out.println();
-        System.out.println("All account creation tests passed.");
+        return runner.result();
     }
 
-    private void runTest(String testName, Runnable test) {
-        try {
-            test.run();
-            System.out.println("PASS: " + testName);
-        } catch (AssertionError error) {
-            System.out.println("FAIL: " + testName);
-            System.out.println("       " + error.getMessage());
-            throw error;
-        } catch (RuntimeException error) {
-            System.out.println("ERROR: " + testName);
-            throw error;
-        }
-    }
-
-    private BankingService createService(){
-        InMemoryAccountDatabase  inMemoryAccountDatabase = new InMemoryAccountDatabase();
-        InMemoryTransactionDatabase   inMemoryTransactionDatabase = new InMemoryTransactionDatabase();
-        AccountRepository accountRepository = new AccountRepositoryImpl(inMemoryAccountDatabase);
-        TransactionRepository transactionRepository = new TransactionRepositoryImpl(inMemoryTransactionDatabase);
-        BankingServiceValidator bankingServiceValidator = new BankingServiceValidator(accountRepository);
-        TransactionService transactionService = new TransactionServiceImpl(transactionRepository);
-        return new BankingServiceImpl(accountRepository, bankingServiceValidator, transactionService);
+    private BankingService createService() {
+        return TestFixtures.service();
     }
 
     void createsAccountWithZeroInitialBalance() {
@@ -172,4 +146,5 @@ public class AccountCreationTest {
                 "A small positive initial balance should be accepted"
         );
     }
+
 }

@@ -1,71 +1,44 @@
 package com.banking.system;
 
-import com.banking.system.database.InMemoryAccountDatabase;
-import com.banking.system.database.InMemoryTransactionDatabase;
 import com.banking.system.exceptions.AccountNotFoundException;
 import com.banking.system.exceptions.InvalidAmountException;
-import com.banking.system.repo.AccountRepository;
-import com.banking.system.repo.TransactionRepository;
-import com.banking.system.repo.impl.AccountRepositoryImpl;
-import com.banking.system.repo.impl.TransactionRepositoryImpl;
 import com.banking.system.service.BankingService;
-import com.banking.system.service.TransactionService;
-import com.banking.system.service.impl.BankingServiceImpl;
-import com.banking.system.service.impl.TransactionServiceImpl;
-import com.banking.system.validator.BankingServiceValidator;
 
 import java.math.BigDecimal;
 
 public class DepositTest {
 
     public static void main(String[] args) {
-        DepositTest tests = new DepositTest();
-
-        tests.runTest("depositsMoneyIntoAccount", tests::depositsMoneyIntoAccount);
-
-        tests.runTest("depositIncreasesExistingBalance", tests::depositIncreasesExistingBalance);
-
-        tests.runTest("allowsMultipleDeposits", tests::allowsMultipleDeposits);
-
-        tests.runTest("allowsDepositsIntoMultipleAccounts", tests::allowsDepositsIntoMultipleAccounts);
-
-        tests.runTest("rejectsDepositIntoUnknownAccount", tests::rejectsDepositIntoUnknownAccount);
-
-        tests.runTest("rejectsNullDepositAmount", tests::rejectsNullDepositAmount);
-
-        tests.runTest("rejectsNegativeDepositAmount", tests::rejectsNegativeDepositAmount);
-
-        tests.runTest("rejectsZeroDepositAmount", tests::rejectsZeroDepositAmount);
-
-        tests.runTest("failedDepositDoesNotChangeBalance", tests::failedDepositDoesNotChangeBalance);
-
-        System.out.println();
-        System.out.println("All deposit tests passed.");
+        TestRunner.exit(run());
     }
 
-    private void runTest(String testName, Runnable test) {
-        try {
-            test.run();
-            System.out.println("PASS: " + testName);
-        } catch (AssertionError error) {
-            System.out.println("FAIL: " + testName);
-            System.out.println("       " + error.getMessage());
-            throw error;
-        } catch (RuntimeException error) {
-            System.out.println("ERROR: " + testName);
-            error.printStackTrace();
-            throw error;
-        }
+    public static SuiteResult run() {
+        DepositTest tests = new DepositTest();
+        TestRunner runner = new TestRunner("Deposit");
+
+        runner.test("depositsMoneyIntoAccount", tests::depositsMoneyIntoAccount);
+
+        runner.test("depositIncreasesExistingBalance", tests::depositIncreasesExistingBalance);
+
+        runner.test("allowsMultipleDeposits", tests::allowsMultipleDeposits);
+
+        runner.test("allowsDepositsIntoMultipleAccounts", tests::allowsDepositsIntoMultipleAccounts);
+
+        runner.test("rejectsDepositIntoUnknownAccount", tests::rejectsDepositIntoUnknownAccount);
+
+        runner.test("rejectsNullDepositAmount", tests::rejectsNullDepositAmount);
+
+        runner.test("rejectsNegativeDepositAmount", tests::rejectsNegativeDepositAmount);
+
+        runner.test("rejectsZeroDepositAmount", tests::rejectsZeroDepositAmount);
+
+        runner.test("failedDepositDoesNotChangeBalance", tests::failedDepositDoesNotChangeBalance);
+
+        return runner.result();
     }
 
     private BankingService createService() {
-        InMemoryAccountDatabase database = new InMemoryAccountDatabase();
-        InMemoryTransactionDatabase transactionDatabase = new InMemoryTransactionDatabase();
-        AccountRepository repository = new AccountRepositoryImpl(database);
-        TransactionRepository transactionRepository = new TransactionRepositoryImpl(transactionDatabase);
-        BankingServiceValidator validator = new BankingServiceValidator(repository);
-        TransactionService transactionService = new TransactionServiceImpl(transactionRepository);
-        return new BankingServiceImpl(repository, validator, transactionService);
+        return TestFixtures.service();
     }
 
     private BankingService createServiceWithAccount(String accountId, BigDecimal initialBalance) {

@@ -1,76 +1,49 @@
 package com.banking.system;
 
-import com.banking.system.database.InMemoryAccountDatabase;
-import com.banking.system.database.InMemoryTransactionDatabase;
 import com.banking.system.exceptions.AccountNotFoundException;
 import com.banking.system.exceptions.InsufficientFundsException;
 import com.banking.system.exceptions.InvalidAmountException;
-import com.banking.system.repo.AccountRepository;
-import com.banking.system.repo.TransactionRepository;
-import com.banking.system.repo.impl.AccountRepositoryImpl;
-import com.banking.system.repo.impl.TransactionRepositoryImpl;
 import com.banking.system.service.BankingService;
-import com.banking.system.service.TransactionService;
-import com.banking.system.service.impl.BankingServiceImpl;
-import com.banking.system.service.impl.TransactionServiceImpl;
-import com.banking.system.validator.BankingServiceValidator;
 
 import java.math.BigDecimal;
 
 public class WithdrawalTest {
 
     public static void main(String[] args) {
-        WithdrawalTest tests = new WithdrawalTest();
-
-        tests.runTest("withdrawsMoneyFromAccount", tests::withdrawsMoneyFromAccount);
-
-        tests.runTest("withdrawalDecreasesExistingBalance", tests::withdrawalDecreasesExistingBalance);
-
-        tests.runTest("allowsMultipleWithdrawals", tests::allowsMultipleWithdrawals);
-
-        tests.runTest("allowsWithdrawalOfExactBalance", tests::allowsWithdrawalOfExactBalance);
-
-        tests.runTest("keepsMultipleAccountBalancesIndependent", tests::keepsMultipleAccountBalancesIndependent);
-
-        tests.runTest("rejectsWithdrawalFromUnknownAccount", tests::rejectsWithdrawalFromUnknownAccount);
-
-        tests.runTest("rejectsNullWithdrawalAmount", tests::rejectsNullWithdrawalAmount);
-
-        tests.runTest("rejectsNegativeWithdrawalAmount", tests::rejectsNegativeWithdrawalAmount);
-
-        tests.runTest("rejectsZeroWithdrawalAmount", tests::rejectsZeroWithdrawalAmount);
-
-        tests.runTest("rejectsWithdrawalThatWouldCauseOverdraft", tests::rejectsWithdrawalThatWouldCauseOverdraft);
-
-        tests.runTest("failedWithdrawalDoesNotChangeBalance", tests::failedWithdrawalDoesNotChangeBalance);
-
-        System.out.println();
-        System.out.println("All withdrawal tests passed.");
+        TestRunner.exit(run());
     }
 
-    private void runTest(String testName, Runnable test) {
-        try {
-            test.run();
-            System.out.println("PASS: " + testName);
-        } catch (AssertionError error) {
-            System.out.println("FAIL: " + testName);
-            System.out.println("       " + error.getMessage());
-            throw error;
-        } catch (RuntimeException error) {
-            System.out.println("ERROR: " + testName);
-            error.printStackTrace();
-            throw error;
-        }
+    public static SuiteResult run() {
+        WithdrawalTest tests = new WithdrawalTest();
+        TestRunner runner = new TestRunner("Withdrawal");
+
+        runner.test("withdrawsMoneyFromAccount", tests::withdrawsMoneyFromAccount);
+
+        runner.test("withdrawalDecreasesExistingBalance", tests::withdrawalDecreasesExistingBalance);
+
+        runner.test("allowsMultipleWithdrawals", tests::allowsMultipleWithdrawals);
+
+        runner.test("allowsWithdrawalOfExactBalance", tests::allowsWithdrawalOfExactBalance);
+
+        runner.test("keepsMultipleAccountBalancesIndependent", tests::keepsMultipleAccountBalancesIndependent);
+
+        runner.test("rejectsWithdrawalFromUnknownAccount", tests::rejectsWithdrawalFromUnknownAccount);
+
+        runner.test("rejectsNullWithdrawalAmount", tests::rejectsNullWithdrawalAmount);
+
+        runner.test("rejectsNegativeWithdrawalAmount", tests::rejectsNegativeWithdrawalAmount);
+
+        runner.test("rejectsZeroWithdrawalAmount", tests::rejectsZeroWithdrawalAmount);
+
+        runner.test("rejectsWithdrawalThatWouldCauseOverdraft", tests::rejectsWithdrawalThatWouldCauseOverdraft);
+
+        runner.test("failedWithdrawalDoesNotChangeBalance", tests::failedWithdrawalDoesNotChangeBalance);
+
+        return runner.result();
     }
 
     private BankingService createService() {
-        InMemoryAccountDatabase database = new InMemoryAccountDatabase();
-        InMemoryTransactionDatabase transactionDatabase = new InMemoryTransactionDatabase();
-        AccountRepository repository = new AccountRepositoryImpl(database);
-        TransactionRepository transactionRepository = new TransactionRepositoryImpl(transactionDatabase);
-        BankingServiceValidator validator = new BankingServiceValidator(repository);
-        TransactionService transactionService = new TransactionServiceImpl(transactionRepository);
-        return new BankingServiceImpl(repository, validator, transactionService);
+        return TestFixtures.service();
     }
 
     private BankingService createServiceWithAccount(String accountId, BigDecimal initialBalance) {

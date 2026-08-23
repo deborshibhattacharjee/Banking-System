@@ -1,6 +1,7 @@
 package com.banking.system;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Objects;
 
 public class TestAssertions {
@@ -47,9 +48,29 @@ public class TestAssertions {
         }
     }
 
+    public static void assertTrue(boolean condition, String message) {
+        if (!condition) {
+            throw new AssertionError(message);
+        }
+    }
+
     public static void assertFalse(boolean condition, String message) {
         if (condition) {
             throw new AssertionError(message);
         }
+    }
+
+    public static <T> T first(List<T> values) {
+        if (values.isEmpty()) {
+            throw new AssertionError("Expected at least one element, but the list was empty");
+        }
+        return values.get(0);
+    }
+
+    public static <T> T last(List<T> values) {
+        if (values.isEmpty()) {
+            throw new AssertionError("Expected at least one element, but the list was empty");
+        }
+        return values.get(values.size() - 1);
     }
 }

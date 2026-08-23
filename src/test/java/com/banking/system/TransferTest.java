@@ -1,81 +1,54 @@
 package com.banking.system;
 
-import com.banking.system.database.InMemoryAccountDatabase;
-import com.banking.system.database.InMemoryTransactionDatabase;
 import com.banking.system.exceptions.AccountNotFoundException;
 import com.banking.system.exceptions.InsufficientFundsException;
 import com.banking.system.exceptions.InvalidAmountException;
 import com.banking.system.exceptions.InvalidTransferException;
-import com.banking.system.repo.AccountRepository;
-import com.banking.system.repo.TransactionRepository;
-import com.banking.system.repo.impl.AccountRepositoryImpl;
-import com.banking.system.repo.impl.TransactionRepositoryImpl;
 import com.banking.system.service.BankingService;
-import com.banking.system.service.TransactionService;
-import com.banking.system.service.impl.BankingServiceImpl;
-import com.banking.system.service.impl.TransactionServiceImpl;
-import com.banking.system.validator.BankingServiceValidator;
 
 import java.math.BigDecimal;
 
 public class TransferTest {
 
     public static void main(String[] args) {
-        TransferTest tests = new TransferTest();
-
-        tests.runTest("transfersMoneyBetweenAccounts", tests::transfersMoneyBetweenAccounts);
-
-        tests.runTest("updatesBothBalancesCorrectly", tests::updatesBothBalancesCorrectly);
-
-        tests.runTest("allowsMultipleTransfers", tests::allowsMultipleTransfers);
-
-        tests.runTest("allowsTransferOfExactSourceBalance", tests::allowsTransferOfExactSourceBalance);
-
-        tests.runTest("rejectsTransferFromUnknownSourceAccount", tests::rejectsTransferFromUnknownSourceAccount);
-
-        tests.runTest("rejectsTransferToUnknownDestinationAccount", tests::rejectsTransferToUnknownDestinationAccount);
-
-        tests.runTest("rejectsNullTransferAmount", tests::rejectsNullTransferAmount);
-
-        tests.runTest("rejectsNegativeTransferAmount", tests::rejectsNegativeTransferAmount);
-
-        tests.runTest("rejectsZeroTransferAmount", tests::rejectsZeroTransferAmount);
-
-        tests.runTest("rejectsTransferThatWouldCauseOverdraft", tests::rejectsTransferThatWouldCauseOverdraft);
-
-        tests.runTest("failedTransferDoesNotChangeEitherBalance", tests::failedTransferDoesNotChangeEitherBalance);
-
-        tests.runTest("keepsAccountsIndependentAfterTransfer", tests::keepsAccountsIndependentAfterTransfer);
-
-        tests.runTest("rejectsTransferToSameAccount", tests::rejectsTransferToSameAccount);
-
-        System.out.println();
-        System.out.println("All transfer tests passed.");
+        TestRunner.exit(run());
     }
 
-    private void runTest(String testName, Runnable test) {
-        try {
-            test.run();
-            System.out.println("PASS: " + testName);
-        } catch (AssertionError error) {
-            System.out.println("FAIL: " + testName);
-            System.out.println("       " + error.getMessage());
-            throw error;
-        } catch (RuntimeException error) {
-            System.out.println("ERROR: " + testName);
-            error.printStackTrace();
-            throw error;
-        }
+    public static SuiteResult run() {
+        TransferTest tests = new TransferTest();
+        TestRunner runner = new TestRunner("Transfer");
+
+        runner.test("transfersMoneyBetweenAccounts", tests::transfersMoneyBetweenAccounts);
+
+        runner.test("updatesBothBalancesCorrectly", tests::updatesBothBalancesCorrectly);
+
+        runner.test("allowsMultipleTransfers", tests::allowsMultipleTransfers);
+
+        runner.test("allowsTransferOfExactSourceBalance", tests::allowsTransferOfExactSourceBalance);
+
+        runner.test("rejectsTransferFromUnknownSourceAccount", tests::rejectsTransferFromUnknownSourceAccount);
+
+        runner.test("rejectsTransferToUnknownDestinationAccount", tests::rejectsTransferToUnknownDestinationAccount);
+
+        runner.test("rejectsNullTransferAmount", tests::rejectsNullTransferAmount);
+
+        runner.test("rejectsNegativeTransferAmount", tests::rejectsNegativeTransferAmount);
+
+        runner.test("rejectsZeroTransferAmount", tests::rejectsZeroTransferAmount);
+
+        runner.test("rejectsTransferThatWouldCauseOverdraft", tests::rejectsTransferThatWouldCauseOverdraft);
+
+        runner.test("failedTransferDoesNotChangeEitherBalance", tests::failedTransferDoesNotChangeEitherBalance);
+
+        runner.test("keepsAccountsIndependentAfterTransfer", tests::keepsAccountsIndependentAfterTransfer);
+
+        runner.test("rejectsTransferToSameAccount", tests::rejectsTransferToSameAccount);
+
+        return runner.result();
     }
 
     private BankingService createService() {
-        InMemoryAccountDatabase database = new InMemoryAccountDatabase();
-        InMemoryTransactionDatabase transactionDatabase = new InMemoryTransactionDatabase();
-        AccountRepository repository = new AccountRepositoryImpl(database);
-        TransactionRepository transactionRepository = new TransactionRepositoryImpl(transactionDatabase);
-        BankingServiceValidator validator = new BankingServiceValidator(repository);
-        TransactionService transactionService = new TransactionServiceImpl(transactionRepository);
-        return new BankingServiceImpl(repository, validator,  transactionService);
+        return TestFixtures.service();
     }
 
     private BankingService createServiceWithTwoAccounts() {
@@ -205,4 +178,6 @@ public class TransferTest {
                         service.transfer("account-1", "account-1", new BigDecimal("25.00")),
                 "A transfer to the same account should be rejected");
     }
+
+
 }

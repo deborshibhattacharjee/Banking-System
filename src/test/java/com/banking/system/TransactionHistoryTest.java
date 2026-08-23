@@ -25,69 +25,60 @@ import java.util.Objects;
 import java.util.Set;
 
 import static java.lang.System.currentTimeMillis;
+import static com.banking.system.TestAssertions.first;
+import static com.banking.system.TestAssertions.last;
 
 public class TransactionHistoryTest {
 
     public static void main(String[] args) {
-        TransactionHistoryTest tests = new TransactionHistoryTest();
-
-        tests.runTest("positiveInitialBalanceCreatesOpeningTransaction", tests::positiveInitialBalanceCreatesOpeningTransaction);
-
-        tests.runTest("newAccountWithZeroBalanceHasEmptyTransactionHistory", tests::newAccountWithZeroBalanceHasEmptyTransactionHistory);
-
-        tests.runTest("successfulDepositCreatesTransaction", tests::successfulDepositCreatesTransaction);
-
-        tests.runTest("depositTransactionContainsCorrectInformation", tests::depositTransactionContainsCorrectInformation);
-
-        tests.runTest("successfulWithdrawalCreatesTransaction", tests::successfulWithdrawalCreatesTransaction);
-
-        tests.runTest("withdrawalTransactionContainsCorrectInformation", tests::withdrawalTransactionContainsCorrectInformation);
-
-        tests.runTest("successfulTransferAddsEntryToEachAccountHistory", tests::successfulTransferAddsEntryToEachAccountHistory);
-
-        tests.runTest("transferAddsTransferEntryWithoutDuplicateOperationEntries", tests::transferAddsTransferEntryWithoutDuplicateOperationEntries);
-
-        tests.runTest("transferUsesCorrectDirections", tests::transferUsesCorrectDirections);
-
-        tests.runTest("transferReferencesRelatedAccounts", tests::transferReferencesRelatedAccounts);
-
-        tests.runTest("transferDoesNotCreateDuplicateDepositOrWithdrawalEntries", tests::transferDoesNotCreateDuplicateDepositOrWithdrawalEntries);
-
-        tests.runTest("transactionHistoryMaintainsOperationOrder", tests::transactionHistoryMaintainsOperationOrder);
-
-        tests.runTest("transactionHistoryIsSpecificToEachAccount", tests::transactionHistoryIsSpecificToEachAccount);
-
-        tests.runTest("transactionContainsTimestamp", tests::transactionContainsTimestamp);
-
-        tests.runTest("transactionIdsAreUnique", tests::transactionIdsAreUnique);
-
-        tests.runTest("failedDepositDoesNotCreateTransaction", tests::failedDepositDoesNotCreateTransaction);
-
-        tests.runTest("failedWithdrawalDoesNotCreateTransaction", tests::failedWithdrawalDoesNotCreateTransaction);
-
-        tests.runTest("failedTransferDoesNotCreateTransactions", tests::failedTransferDoesNotCreateTransactions);
-
-        tests.runTest("unknownAccountHistoryQueryIsRejected", tests::unknownAccountHistoryQueryIsRejected);
-
-        tests.runTest("balancesAreUpdatedTogetherWithLedger", tests::balancesAreUpdatedTogetherWithLedger);
-
-        System.out.println();
-        System.out.println("All transaction flow tests passed.");
+        TestRunner.exit(run());
     }
 
-    private void runTest(String testName, Runnable test) {
-        try {
-            test.run();
-            System.out.println("PASS: " + testName);
-        } catch (AssertionError error) {
-            System.out.println("FAIL: " + testName);
-            System.out.println("       " + error.getMessage());
-            throw error;
-        } catch (RuntimeException error) {
-            System.out.println("ERROR: " + testName);
-            error.printStackTrace();
-            throw error;
-        }
+    public static SuiteResult run() {
+        TransactionHistoryTest tests = new TransactionHistoryTest();
+        TestRunner runner = new TestRunner("Transaction history");
+
+        runner.test("positiveInitialBalanceCreatesOpeningTransaction", tests::positiveInitialBalanceCreatesOpeningTransaction);
+
+        runner.test("newAccountWithZeroBalanceHasEmptyTransactionHistory", tests::newAccountWithZeroBalanceHasEmptyTransactionHistory);
+
+        runner.test("successfulDepositCreatesTransaction", tests::successfulDepositCreatesTransaction);
+
+        runner.test("depositTransactionContainsCorrectInformation", tests::depositTransactionContainsCorrectInformation);
+
+        runner.test("successfulWithdrawalCreatesTransaction", tests::successfulWithdrawalCreatesTransaction);
+
+        runner.test("withdrawalTransactionContainsCorrectInformation", tests::withdrawalTransactionContainsCorrectInformation);
+
+        runner.test("successfulTransferAddsEntryToEachAccountHistory", tests::successfulTransferAddsEntryToEachAccountHistory);
+
+        runner.test("transferAddsTransferEntryWithoutDuplicateOperationEntries", tests::transferAddsTransferEntryWithoutDuplicateOperationEntries);
+
+        runner.test("transferUsesCorrectDirections", tests::transferUsesCorrectDirections);
+
+        runner.test("transferReferencesRelatedAccounts", tests::transferReferencesRelatedAccounts);
+
+        runner.test("transferDoesNotCreateDuplicateDepositOrWithdrawalEntries", tests::transferDoesNotCreateDuplicateDepositOrWithdrawalEntries);
+
+        runner.test("transactionHistoryMaintainsOperationOrder", tests::transactionHistoryMaintainsOperationOrder);
+
+        runner.test("transactionHistoryIsSpecificToEachAccount", tests::transactionHistoryIsSpecificToEachAccount);
+
+        runner.test("transactionContainsTimestamp", tests::transactionContainsTimestamp);
+
+        runner.test("transactionIdsAreUnique", tests::transactionIdsAreUnique);
+
+        runner.test("failedDepositDoesNotCreateTransaction", tests::failedDepositDoesNotCreateTransaction);
+
+        runner.test("failedWithdrawalDoesNotCreateTransaction", tests::failedWithdrawalDoesNotCreateTransaction);
+
+        runner.test("failedTransferDoesNotCreateTransactions", tests::failedTransferDoesNotCreateTransactions);
+
+        runner.test("unknownAccountHistoryQueryIsRejected", tests::unknownAccountHistoryQueryIsRejected);
+
+        runner.test("balancesAreUpdatedTogetherWithLedger", tests::balancesAreUpdatedTogetherWithLedger);
+
+        return runner.result();
     }
 
     private TestContext createTestContext() {
@@ -126,7 +117,7 @@ public class TransactionHistoryTest {
         List<String> ids = context.service.getTransactionHistory("account-1");
         TestAssertions.assertEquals(1, ids.size(),
                 "A positive initial balance should create one opening transaction");
-        Transaction transaction = context.transactionService.findByTransactionIds(ids).getFirst();
+        Transaction transaction = first(context.transactionService.findByTransactionIds(ids));
         TestAssertions.assertEquals(TransactionType.DEPOSIT.name(), transaction.getType(),
                 "The opening transaction should be a DEPOSIT");
         TestAssertions.assertEquals(TransactionDirection.CREDIT.name(), transaction.getDirection(),
@@ -150,7 +141,7 @@ public class TransactionHistoryTest {
         TestAssertions.assertEquals(2, transactionIds.size(),
                 "A successful deposit should create two transaction");
         List<Transaction> transactions = context.transactionService.findByTransactionIds(transactionIds);
-        TestAssertions.assertEquals(TransactionType.DEPOSIT.name(), transactions.getFirst().getType(),
+        TestAssertions.assertEquals(TransactionType.DEPOSIT.name(), first(transactions).getType(),
                 "The transaction type should be DEPOSIT"
         );
     }
@@ -158,8 +149,8 @@ public class TransactionHistoryTest {
     private void depositTransactionContainsCorrectInformation() {
         TestContext context = createContextWithOneAccount();
         context.service.deposit("account-1", new BigDecimal("25.00"));
-        String transactionId = context.service.getTransactionHistory("account-1").getLast();
-        Transaction transaction = context.transactionService.findByTransactionIds(List.of(transactionId)).getFirst();
+        String transactionId = last(context.service.getTransactionHistory("account-1"));
+        Transaction transaction = first(context.transactionService.findByTransactionIds(List.of(transactionId)));
         TestAssertions.assertNotNull(transaction.getTransactionId(),
                 "The deposit should have a transaction ID");
         TestAssertions.assertEquals("account-1", transaction.getAccountId(),
@@ -184,15 +175,15 @@ public class TransactionHistoryTest {
         TestAssertions.assertEquals(2, transactionIds.size(),
                 "A successful withdrawal should create two transaction");
         List<Transaction> transactions = context.transactionService.findByTransactionIds(transactionIds);
-        TestAssertions.assertEquals(TransactionType.WITHDRAWAL.name(), transactions.getLast().getType(),
+        TestAssertions.assertEquals(TransactionType.WITHDRAWAL.name(), last(transactions).getType(),
                 "The transaction type should be WITHDRAWAL");
     }
 
     private void withdrawalTransactionContainsCorrectInformation() {
         TestContext context = createContextWithOneAccount();
         context.service.withdraw("account-1", new BigDecimal("25.00"));
-        String transactionId = context.service.getTransactionHistory("account-1").getLast();
-        Transaction transaction = context.transactionService.findByTransactionIds(List.of(transactionId)).getFirst();
+        String transactionId = last(context.service.getTransactionHistory("account-1"));
+        Transaction transaction = first(context.transactionService.findByTransactionIds(List.of(transactionId)));
         TestAssertions.assertNotNull(transaction.getTransactionId(),
                 "The withdrawal should have a transaction ID");
         TestAssertions.assertEquals("account-1", transaction.getAccountId(),
@@ -222,9 +213,9 @@ public class TransactionHistoryTest {
                 "The source account should contain its opening transaction and transfer");
         TestAssertions.assertEquals(2, destinationHistory.size(),
                 "TThe destination account should contain its opening transaction and transfer");
-        TestAssertions.assertEquals(TransactionType.TRANSFER.name(), sourceHistory.getLast().getType(),
+        TestAssertions.assertEquals(TransactionType.TRANSFER.name(), last(sourceHistory).getType(),
                 "The last source transaction should be TRANSFER");
-        TestAssertions.assertEquals(TransactionType.TRANSFER.name(), destinationHistory.getLast().getType(),
+        TestAssertions.assertEquals(TransactionType.TRANSFER.name(), last(destinationHistory).getType(),
                 "The last destination transaction should be TRANSFER");
     }
 
@@ -240,21 +231,21 @@ public class TransactionHistoryTest {
                 "The source should contain exactly one entry");
         TestAssertions.assertEquals(2, destinationHistory.size(),
                 "The destination should contain exactly one entry");
-        TestAssertions.assertEquals(TransactionType.TRANSFER.name(), sourceHistory.getLast().getType(),
+        TestAssertions.assertEquals(TransactionType.TRANSFER.name(), last(sourceHistory).getType(),
                 "The source's new entry should be TRANSFER");
-        TestAssertions.assertEquals(TransactionType.TRANSFER.name(), destinationHistory.getLast().getType(),
+        TestAssertions.assertEquals(TransactionType.TRANSFER.name(), last(destinationHistory).getType(),
                 "The destination's new entry should be TRANSFER");
     }
 
     private void transferUsesCorrectDirections() {
         TestContext context = createContextWithTwoAccounts();
         context.service.transfer("account-1", "account-2", new BigDecimal("25.00"));
-        String transactionId = context.service.getTransactionHistory("account-1").getLast();
+        String transactionId = last(context.service.getTransactionHistory("account-1"));
         Transaction sourceTransaction =
-                context.transactionService.findByTransactionIds(List.of(transactionId)).getFirst();
-        String destinationTransactionId = context.service.getTransactionHistory("account-2").getLast();
+                first(context.transactionService.findByTransactionIds(List.of(transactionId)));
+        String destinationTransactionId = last(context.service.getTransactionHistory("account-2"));
         Transaction destinationTransaction =
-                context.transactionService.findByTransactionIds(List.of(destinationTransactionId)).getFirst();
+                first(context.transactionService.findByTransactionIds(List.of(destinationTransactionId)));
         TestAssertions.assertEquals(TransactionDirection.DEBIT.name(), sourceTransaction.getDirection(),
                 "The source transfer should be DEBIT");
         TestAssertions.assertEquals(TransactionDirection.CREDIT.name(), destinationTransaction.getDirection(),
@@ -264,12 +255,12 @@ public class TransactionHistoryTest {
     private void transferReferencesRelatedAccounts() {
         TestContext context = createContextWithTwoAccounts();
         context.service.transfer("account-1", "account-2", new BigDecimal("25.00"));
-        String sourceTransactionId = context.service.getTransactionHistory("account-1").getLast();
+        String sourceTransactionId = last(context.service.getTransactionHistory("account-1"));
         Transaction sourceTransaction =
-                context.transactionService.findByTransactionIds(List.of(sourceTransactionId)).getFirst();
-        String destinationTransactionId = context.service.getTransactionHistory("account-2").getLast();
+                first(context.transactionService.findByTransactionIds(List.of(sourceTransactionId)));
+        String destinationTransactionId = last(context.service.getTransactionHistory("account-2"));
         Transaction destinationTransaction =
-                context.transactionService.findByTransactionIds(List.of(destinationTransactionId)).getFirst();
+                first(context.transactionService.findByTransactionIds(List.of(destinationTransactionId)));
         TestAssertions.assertEquals("account-2", sourceTransaction.getRelatedAccountId(),
                 "The source entry should reference account-2");
         TestAssertions.assertEquals("account-1", destinationTransaction.getRelatedAccountId(),
@@ -284,13 +275,13 @@ public class TransactionHistoryTest {
         List<String> destinationTransactionIds = context.service.getTransactionHistory("account-2");
         List<Transaction> destinationHistory =
                 context.transactionService.findByTransactionIds(destinationTransactionIds);
-        TestAssertions.assertFalse(Objects.equals(sourceHistory.getLast().getType(), TransactionType.DEPOSIT.name()),
+        TestAssertions.assertFalse(Objects.equals(last(sourceHistory).getType(), TransactionType.DEPOSIT.name()),
                 "A transfer must not create a DEPOSIT entry");
-        TestAssertions.assertFalse(Objects.equals(sourceHistory.getLast().getType(), TransactionType.WITHDRAWAL.name()),
+        TestAssertions.assertFalse(Objects.equals(last(sourceHistory).getType(), TransactionType.WITHDRAWAL.name()),
                 "A transfer must not create a WITHDRAWAL entry");
-        TestAssertions.assertFalse(Objects.equals(destinationHistory.getLast().getType(), TransactionType.DEPOSIT.name()),
+        TestAssertions.assertFalse(Objects.equals(last(destinationHistory).getType(), TransactionType.DEPOSIT.name()),
                 "A transfer must not create a DEPOSIT entry");
-        TestAssertions.assertFalse(Objects.equals(destinationHistory.getLast().getType(), TransactionType.WITHDRAWAL.name()),
+        TestAssertions.assertFalse(Objects.equals(last(destinationHistory).getType(), TransactionType.WITHDRAWAL.name()),
                 "A transfer must not create a WITHDRAWAL entry");
     }
 
@@ -334,9 +325,9 @@ public class TransactionHistoryTest {
                 "Account 1 should contain only its own history");
         TestAssertions.assertEquals(2, accountTwoHistory.size(),
                 "Account 2 should contain only its own history");
-        TestAssertions.assertEquals(TransactionType.DEPOSIT.name(), accountOneHistory.getLast().getType(),
+        TestAssertions.assertEquals(TransactionType.DEPOSIT.name(), last(accountOneHistory).getType(),
                 "Account 1 should contain its deposit");
-        TestAssertions.assertEquals(TransactionType.WITHDRAWAL.name(), accountTwoHistory.getLast().getType(),
+        TestAssertions.assertEquals(TransactionType.WITHDRAWAL.name(), last(accountTwoHistory).getType(),
                 "Account 2 should contain its withdrawal"
         );
     }
@@ -346,8 +337,8 @@ public class TransactionHistoryTest {
         long beforeOperation = currentTimeMillis();
         context.service.deposit("account-1", new BigDecimal("25.00"));
         long afterOperation = currentTimeMillis();
-        String transactionId = context.service.getTransactionHistory("account-1").getLast();
-        Transaction transaction = context.transactionService.findByTransactionIds(List.of(transactionId)).getFirst();
+        String transactionId = last(context.service.getTransactionHistory("account-1"));
+        Transaction transaction = first(context.transactionService.findByTransactionIds(List.of(transactionId)));
         TestAssertions.assertNotNull(transaction.getTimestamp(), "The transaction timestamp must not be null");
         if (transaction.getTimestamp() < beforeOperation || transaction.getTimestamp() > afterOperation) {
             throw new AssertionError("The timestamp should represent the operation time");
@@ -451,7 +442,7 @@ public class TransactionHistoryTest {
                 "The third entry should be WITHDRAWAL");
         TestAssertions.assertEquals(TransactionType.TRANSFER.name(), accountOneHistory.get(3).getType(),
                 "The fourth entry should be TRANSFER");
-        TestAssertions.assertEquals(TransactionType.TRANSFER.name(), accountTwoHistory.getLast().getType(),
+        TestAssertions.assertEquals(TransactionType.TRANSFER.name(), last(accountTwoHistory).getType(),
                 "The destination should contain a TRANSFER entry");
     }
 
