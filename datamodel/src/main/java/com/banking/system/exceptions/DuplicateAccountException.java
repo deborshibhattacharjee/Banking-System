@@ -6,4 +6,6 @@ public class DuplicateAccountException extends BaseRuntimeException {
     public DuplicateAccountException(BankingSystemError error) {
         super(error);
     }
+
+    private static final long serialVersionUID = 1L;
 }

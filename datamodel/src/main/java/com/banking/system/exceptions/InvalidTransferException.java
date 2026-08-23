@@ -6,4 +6,6 @@ public class InvalidTransferException extends BaseRuntimeException {
     public InvalidTransferException(BankingSystemError error) {
         super(error);
     }
+
+    private static final long serialVersionUID = 1L;
 }

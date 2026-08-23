@@ -1,18 +1,19 @@
 package com.banking.system.dtos;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Account {
-    private String id;
+
+    private final String id;
     private BigDecimal balance;
-    private List<String> transactions = new ArrayList<>();
+    private final List<String> transactions = new CopyOnWriteArrayList<>();
 
     public Account(String id, BigDecimal initialBalance) {
-        this.id = Objects.requireNonNull(id);
-        this.balance = Objects.requireNonNull(initialBalance);
+        this.id = Objects.requireNonNull(id, "Account id cannot be null");
+        this.balance = Objects.requireNonNull(initialBalance, "Account balance cannot be null");
     }
 
     public String getId() {
@@ -32,13 +33,10 @@ public class Account {
     }
 
     public void addToTransactions(String transactionId) {
-        if(transactions == null){
-            transactions = new ArrayList<>();
-        }
         transactions.add(transactionId);
     }
 
     public List<String> getTransactions() {
-        return transactions;
+        return List.copyOf(transactions);
     }
 }

@@ -14,7 +14,8 @@ import com.banking.system.validator.BankingServiceValidator;
 import java.math.BigDecimal;
 import java.util.List;
 
-import static com.banking.system.enums.BankingSystemError.*;
+import static com.banking.system.enums.BankingSystemError.INSUFFICIENT_FUNDS_FOR_WITHDRAWAL;
+import static com.banking.system.enums.BankingSystemError.INVALID_OPERATION_TRANSFER_TO_SAME_ACCOUNT;
 
 public class BankingServiceImpl implements BankingService {
 
@@ -34,18 +35,33 @@ public class BankingServiceImpl implements BankingService {
         validator.validateAccountCreation(accountId, initialBalance);
         Account account = new Account(accountId, initialBalance);
         accountRepository.save(account);
-        if(account.getBalance().compareTo(BigDecimal.ZERO) > 0) {
-            Transaction transaction = transactionService.recordTransaction(accountId, null,
-                    TransactionType.DEPOSIT.name(), TransactionDirection.CREDIT.name(), initialBalance,
-                    account.getBalance());
-            account.addToTransactions(transaction.getTransactionId());
+        if (account.getBalance().compareTo(BigDecimal.ZERO) > 0) {
+            record(account, TransactionType.DEPOSIT, TransactionDirection.CREDIT, initialBalance, null);
         }
     }
 
     @Override
     public BigDecimal getBalance(String accountId) {
+        return validator.validateAccountIdExists(accountId).getBalance();
+    }
+
+    @Override
+    public void deposit(String accountId, BigDecimal amount) {
+        validator.validateAmount(amount);
         Account account = validator.validateAccountIdExists(accountId);
-        return account.getBalance();
+        account.add(amount);
+        record(account, TransactionType.DEPOSIT, TransactionDirection.CREDIT, amount, null);
+    }
+
+    @Override
+    public void withdraw(String accountId, BigDecimal amount) {
+        validator.validateAmount(amount);
+        Account account = validator.validateAccountIdExists(accountId);
+        if (account.getBalance().compareTo(amount) < 0) {
+            throw new InsufficientFundsException(INSUFFICIENT_FUNDS_FOR_WITHDRAWAL, accountId);
+        }
+        account.subtract(amount);
+        record(account, TransactionType.WITHDRAWAL, TransactionDirection.DEBIT, amount, null);
     }
 
     @Override
@@ -54,48 +70,27 @@ public class BankingServiceImpl implements BankingService {
             throw new InvalidTransferException(INVALID_OPERATION_TRANSFER_TO_SAME_ACCOUNT);
         }
         validator.validateAmount(amount);
-        Account srcAcc =  validator.validateAccountIdExists(srcId);
-        Account destAcc = validator.validateAccountIdExists(destId);
-        if (srcAcc.getBalance().compareTo(amount) < 0) {
+        Account source = validator.validateAccountIdExists(srcId);
+        Account destination = validator.validateAccountIdExists(destId);
+        if (source.getBalance().compareTo(amount) < 0) {
             throw new InsufficientFundsException(INSUFFICIENT_FUNDS_FOR_WITHDRAWAL, srcId);
         }
-        srcAcc.subtract(amount);
-        destAcc.add(amount);
-        Transaction sourceTransaction = transactionService.recordTransaction(srcId, destId, TransactionType.TRANSFER.name(),
-                TransactionDirection.DEBIT.name(), amount, srcAcc.getBalance());
-        srcAcc.addToTransactions(sourceTransaction.getTransactionId());
-        Transaction destTransaction = transactionService.recordTransaction(destId, srcId, TransactionType.TRANSFER.name(),
-                TransactionDirection.CREDIT.name(), amount, destAcc.getBalance());
-        destAcc.addToTransactions(destTransaction.getTransactionId());
+        source.subtract(amount);
+        destination.add(amount);
+        record(source, TransactionType.TRANSFER, TransactionDirection.DEBIT, amount, destId);
+        record(destination, TransactionType.TRANSFER, TransactionDirection.CREDIT, amount, srcId);
     }
 
     @Override
-    public void deposit(String accountId, BigDecimal amount) {
-        validator.validateAmount(amount);
+    public List<Transaction> getTransactionHistory(String accountId) {
         Account account = validator.validateAccountIdExists(accountId);
-        account.add(amount);
-        Transaction transaction = transactionService.recordTransaction(accountId, null,
-                TransactionType.DEPOSIT.name(), TransactionDirection.CREDIT.name(), amount, account.getBalance());
+        return transactionService.findByTransactionIds(account.getTransactions());
+    }
+
+    private void record(Account account, TransactionType type, TransactionDirection direction,
+                        BigDecimal amount, String relatedAccountId) {
+        Transaction transaction = transactionService.recordTransaction(account.getId(), relatedAccountId,
+                type, direction, amount, account.getBalance());
         account.addToTransactions(transaction.getTransactionId());
-    }
-
-    @Override
-    public void withdraw(String accountId, BigDecimal amount) {
-        validator.validateAmount(amount);
-        Account account = validator.validateAccountIdExists(accountId);
-        if (account.getBalance().compareTo(amount) >= 0) {
-            account.subtract(amount);
-            Transaction transaction = transactionService.recordTransaction(accountId, null,
-                    TransactionType.WITHDRAWAL.name(), TransactionDirection.DEBIT.name(), amount, account.getBalance());
-            account.addToTransactions(transaction.getTransactionId());
-        } else {
-            throw new InsufficientFundsException(INSUFFICIENT_FUNDS_FOR_WITHDRAWAL, accountId);
-        }
-    }
-
-    @Override
-    public List<String> getTransactionHistory(String accountId) {
-        Account account = validator.validateAccountIdExists(accountId);
-        return account.getTransactions();
     }
 }

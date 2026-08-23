@@ -6,4 +6,6 @@ public class InsufficientFundsException extends BaseRuntimeException {
     public InsufficientFundsException(BankingSystemError error, String... params) {
         super(error, params);
     }
+
+    private static final long serialVersionUID = 1L;
 }

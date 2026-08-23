@@ -1,13 +1,13 @@
 package com.banking.system.service.impl;
 
 import com.banking.system.dtos.Transaction;
+import com.banking.system.enums.TransactionDirection;
+import com.banking.system.enums.TransactionType;
 import com.banking.system.repo.TransactionRepository;
 import com.banking.system.service.TransactionService;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 
 import static java.lang.System.currentTimeMillis;
 
@@ -19,20 +19,17 @@ public class TransactionServiceImpl implements TransactionService {
         this.transactionRepository = transactionRepository;
     }
 
-    public Transaction recordTransaction(String accId1, String accId2, String transactionType,
-                                         String transactionDirection, BigDecimal amount, BigDecimal balance) {
-        Transaction transaction = new Transaction(UUID.randomUUID().toString(), accId1, transactionType,
-                transactionDirection, amount, balance, accId2, currentTimeMillis());
+    @Override
+    public Transaction recordTransaction(String accountId, String relatedAccountId, TransactionType type,
+                                         TransactionDirection direction, BigDecimal amount, BigDecimal balanceAfter) {
+        Transaction transaction = new Transaction(java.util.UUID.randomUUID().toString(), accountId, type,
+                direction, amount, balanceAfter, relatedAccountId, currentTimeMillis());
         transactionRepository.save(transaction);
         return transaction;
     }
 
     @Override
     public List<Transaction> findByTransactionIds(List<String> transactionIds) {
-        Optional<List<Transaction>> optionalTransactions =
-                transactionRepository.findByTransactionId(transactionIds);
-        return  optionalTransactions.orElse(List.of());
+        return transactionRepository.findByTransactionIds(transactionIds);
     }
-
-
 }

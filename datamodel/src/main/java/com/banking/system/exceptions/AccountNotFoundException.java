@@ -7,4 +7,6 @@ public class AccountNotFoundException extends BaseRuntimeException {
     public AccountNotFoundException(BankingSystemError error, String... params) {
         super(error, params);
     }
+
+    private static final long serialVersionUID = 1L;
 }

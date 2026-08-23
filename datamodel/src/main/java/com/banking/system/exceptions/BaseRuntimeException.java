@@ -13,8 +13,10 @@ public class BaseRuntimeException extends RuntimeException {
     private static String getMessage(BankingSystemError error, String... params) {
         String message = error.getOptionalDebugMessage();
         if(params.length > 0) {
-            message = String.format(message, params);
+            message = String.format(message, (Object[]) params);
         }
         return String.join(COLON, error.getErrorCode(), message);
     }
+
+    private static final long serialVersionUID = 1L;
 }

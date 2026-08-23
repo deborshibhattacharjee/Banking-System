@@ -5,23 +5,23 @@ import com.banking.system.dtos.Transaction;
 import com.banking.system.repo.TransactionRepository;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.Objects;
 
 public class TransactionRepositoryImpl implements TransactionRepository {
 
-    private final InMemoryTransactionDatabase inMemoryTransactionDatabase;
+    private final InMemoryTransactionDatabase database;
 
-    public TransactionRepositoryImpl(InMemoryTransactionDatabase inMemoryTransactionDatabase) {
-        this.inMemoryTransactionDatabase = inMemoryTransactionDatabase;
+    public TransactionRepositoryImpl(InMemoryTransactionDatabase database) {
+        this.database = Objects.requireNonNull(database, "database must not be null");
     }
 
     @Override
     public void save(Transaction transaction) {
-        inMemoryTransactionDatabase.save(transaction);
+        database.save(transaction);
     }
 
     @Override
-    public Optional<List<Transaction>> findByTransactionId(List<String> transactionIds) {
-        return inMemoryTransactionDatabase.findByTransactionId(transactionIds);
+    public List<Transaction> findByTransactionIds(List<String> transactionIds) {
+        return database.findByTransactionIds(transactionIds);
     }
 }

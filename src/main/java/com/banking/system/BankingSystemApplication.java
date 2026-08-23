@@ -1,17 +1,8 @@
 package com.banking.system;
 
-import com.banking.system.database.InMemoryAccountDatabase;
-import com.banking.system.database.InMemoryTransactionDatabase;
 import com.banking.system.dtos.Transaction;
-import com.banking.system.repo.AccountRepository;
-import com.banking.system.repo.TransactionRepository;
-import com.banking.system.repo.impl.AccountRepositoryImpl;
-import com.banking.system.repo.impl.TransactionRepositoryImpl;
+import com.banking.system.factory.BankingSystemFactory;
 import com.banking.system.service.BankingService;
-import com.banking.system.service.TransactionService;
-import com.banking.system.service.impl.BankingServiceImpl;
-import com.banking.system.service.impl.TransactionServiceImpl;
-import com.banking.system.validator.BankingServiceValidator;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -19,11 +10,8 @@ import java.util.Scanner;
 
 public class BankingSystemApplication {
 
-    private static BankingService bankingService;
-    private static TransactionService transactionService;
-
     public static void main(String[] args) {
-        createBankingService();
+        BankingService bankingService = BankingSystemFactory.newBankingService();
         try (Scanner scanner = new Scanner(System.in)) {
             boolean running = true;
             System.out.println("=================================");
@@ -105,19 +93,16 @@ public class BankingSystemApplication {
 
     private static void showBalance(Scanner scanner, BankingService bankingService) {
         String accountId = readText(scanner, "Enter account ID: ");
-        BigDecimal balance = bankingService.getBalance(accountId);
-        System.out.println("Account balance: " + balance);
+        System.out.println("Account balance: " + bankingService.getBalance(accountId));
     }
 
     private static void showTransactionHistory(Scanner scanner, BankingService bankingService) {
         String accountId = readText(scanner, "Enter account ID: ");
-        List<String> transactionIds = bankingService.getTransactionHistory(accountId);
-        List<Transaction> transactions = transactionService.findByTransactionIds(transactionIds);
-        if (transactionIds.isEmpty()) {
+        List<Transaction> transactions = bankingService.getTransactionHistory(accountId);
+        if (transactions.isEmpty()) {
             System.out.println("No transactions found.");
             return;
         }
-
         System.out.println("Transaction history for " + accountId + ":");
         for (int index = 0; index < transactions.size(); index++) {
             System.out.println((index + 1) + ". " + transactions.get(index));
@@ -137,15 +122,5 @@ public class BankingSystemApplication {
         } catch (NumberFormatException exception) {
             throw new IllegalArgumentException("Please enter a valid monetary amount.");
         }
-    }
-
-    private static void createBankingService() {
-        InMemoryAccountDatabase accountDatabase = new InMemoryAccountDatabase();
-        InMemoryTransactionDatabase transactionDatabase = new InMemoryTransactionDatabase();
-        AccountRepository accountRepository = new AccountRepositoryImpl(accountDatabase);
-        TransactionRepository transactionRepository = new TransactionRepositoryImpl(transactionDatabase);
-        BankingServiceValidator validator = new BankingServiceValidator(accountRepository);
-        transactionService = new TransactionServiceImpl(transactionRepository);
-        bankingService = new BankingServiceImpl(accountRepository, validator, transactionService);
     }
 }
